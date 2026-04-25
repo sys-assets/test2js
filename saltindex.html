@@ -1,0 +1,41 @@
+<script>
+const encodedData = "XYZ..."; // your full string
+
+// Remove salt prefix
+const cleanBase64 = encodedData.slice(3);
+
+// Decode
+const decodedHTML = atob(cleanBase64);
+
+// Inject HTML
+document.open();
+document.write(decodedHTML);
+document.close();
+
+// ---- ADD SALT TO URL AFTER RENDER ----
+
+// simple random salt generator
+function generateSalt(length = 6) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let salt = "";
+    for (let i = 0; i < length; i++) {
+        salt += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return salt;
+}
+
+// append salt to all links
+window.addEventListener("load", () => {
+    const salt = generateSalt();
+
+    document.querySelectorAll("a[href]").forEach(link => {
+        const url = new URL(link.href);
+
+        // avoid duplicating salt
+        if (!url.searchParams.has("salt")) {
+            url.searchParams.set("salt", salt);
+            link.href = url.toString();
+        }
+    });
+});
+</script>
